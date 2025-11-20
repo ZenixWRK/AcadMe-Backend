@@ -18,6 +18,10 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 const port = process.env.PORT || 3000;
 const app = express();
 
+if (process.env.NODE_ENV) {
+    job.start();
+}
+
 // -- Middleware -- //
 app.use(cors());
 app.use(express.json());
