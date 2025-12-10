@@ -90,7 +90,7 @@ export async function updateAssignment(req, res) {
         if (!id || isNaN(parseInt(id))) {
             return res.status(400).json({ message: 'Assignment id is required/needs to be a number' });
         }
-
+        // ? using this so i can commit and pus
         const assignment = await sql`
             UPDATE assignments
             SET title = COALESCE(${title}, title),
