@@ -8,11 +8,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import job from './config/cron.js';
 
-// Get the directory name for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load .env file from the parent directory (Backend root)
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const port = process.env.PORT || 3000;

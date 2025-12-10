@@ -3,11 +3,9 @@ import 'dotenv/config';
 
 const dbUrl = process.env.DB_URL;
 
-// will create sql connection using our url, will be able to write queries now safely
 export const sql = neon(dbUrl);
 
 export async function initDB() {
-    // Database initialization logic can go here
 
     try {
         await sql`CREATE TABLE IF NOT EXISTS assignments(
