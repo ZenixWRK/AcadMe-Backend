@@ -20,14 +20,28 @@ export async function getAssignmentsByUserId(req, res) {
 
 export async function createAssignment(req, res) {
     try {
-            const { userId, title, description, dueDate, subject, priority } = req.body;
-            if (!userId || !title || !description || !dueDate || !subject) {
-                return res.status(400).json({ message: 'userId, title, description, dueDate, and subject are required' });
+            const incoming = req.body || {};
+            const userId = incoming.userId ?? incoming.userid ?? incoming.user_id;
+            const title = incoming.title;
+            const description = incoming.description;
+            const dueDate = incoming.dueDate ?? incoming.duedate ?? incoming.due_date;
+            const subject = incoming.subject;
+            const priority = incoming.priority ?? 'medium';
+
+            const missing = [];
+            if (!userId) missing.push('userId');
+            if (!title) missing.push('title');
+            if (!description) missing.push('description');
+            if (!dueDate) missing.push('dueDate');
+            if (!subject) missing.push('subject');
+
+            if (missing.length > 0) {
+                return res.status(400).json({ message: `Missing required fields: ${missing.join(', ')}` });
             }
     
             const assignment = await sql`
-                INSERT INTO assignments (userId, title, description, dueDate, subject, priority, completed)
-                VALUES (${userId}, ${title}, ${description}, ${dueDate}, ${subject}, ${priority || 'medium'}, ${false})   
+                INSERT INTO assignments (userid, title, description, duedate, subject, priority, completed)
+                VALUES (${userId}, ${title}, ${description}, ${dueDate}, ${subject}, ${priority}, ${false})   
                 RETURNING *
                 `
             
@@ -65,18 +79,28 @@ export async function deleteAssignment(req, res) {
 export async function updateAssignment(req, res) {
     try {
         const { id } = req.params;
-        const { title, description, dueDate, subject, priority, completed } = req.body;
-        
+        const incoming = req.body || {};
+        const title = incoming.title;
+        const description = incoming.description;
+        const dueDate = incoming.dueDate ?? incoming.duedate ?? incoming.due_date;
+        const subject = incoming.subject;
+        const priority = incoming.priority;
+        const completed = incoming.completed;
+
         if (!id || isNaN(parseInt(id))) {
             return res.status(400).json({ message: 'Assignment id is required/needs to be a number' });
         }
 
         const assignment = await sql`
-            UPDATE assignments 
-            SET title = ${title}, description = ${description}, dueDate = ${dueDate}, 
-                subject = ${subject}, priority = ${priority}, completed = ${completed}
-            WHERE id = ${id} 
-            RETURNING *
+            UPDATE assignments
+            SET title = COALESCE(${title}, title),
+                description = COALESCE(${description}, description),
+                duedate = COALESCE(${dueDate}, duedate),
+                subject = COALESCE(${subject}, subject),
+                priority = COALESCE(${priority}, priority),
+                completed = COALESCE(${completed}, completed)
+            WHERE id = ${id}
+                RETURNING *
         `;
 
         if (assignment.length === 0) {
@@ -88,7 +112,7 @@ export async function updateAssignment(req, res) {
         console.error('Error updating assignment:', err);
         res.status(500).json({ message: 'Error updating assignment' });
     }
-} // updates an assignment
+} // updates an assignment -. needs id and any fields to update
 
 export async function toggleAssignmentCompletion(req, res) {
     try {
@@ -127,7 +151,7 @@ export async function getAssignmentsBySubject(req, res) {
         const assignments = await sql`
             SELECT * FROM assignments 
             WHERE userid = ${userId} AND subject = ${subject} 
-            ORDER BY dueDate ASC
+            ORDER BY duedate ASC
         `;
 
         res.status(200).json(assignments);
