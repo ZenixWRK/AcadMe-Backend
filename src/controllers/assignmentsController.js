@@ -16,7 +16,7 @@ export async function getAssignmentsByUserId(req, res) {
         console.error('Error fetching assignments:', err);
         res.status(500).json({ message: 'Error fetching assignments' });
     }
-} // gets all assignments for a user
+}
 
 export async function createAssignment(req, res) {
     try {
@@ -46,13 +46,13 @@ export async function createAssignment(req, res) {
                 `
             
             console.log('Assignment created:', assignment[0]);
-            res.status(201).json(assignment[0]); // return the created assignment
+            res.status(201).json(assignment[0]);
                 
         } catch (err) {
             console.error('Error creating assignment:', err);
             res.status(500).json({ message: 'Error creating assignment' });
         }
-} // creates a new assignment
+}
 
 export async function deleteAssignment(req, res) {
     try {
@@ -74,7 +74,7 @@ export async function deleteAssignment(req, res) {
         console.error('Error deleting assignment:', err);
         res.status(500).json({ message: 'Error deleting assignment' });
     }
-} // deletes an assignment by id, if it can find it
+}
 
 export async function updateAssignment(req, res) {
     try {
@@ -90,7 +90,7 @@ export async function updateAssignment(req, res) {
         if (!id || isNaN(parseInt(id))) {
             return res.status(400).json({ message: 'Assignment id is required/needs to be a number' });
         }
-        // ? using this so i can commit and pus
+        
         const assignment = await sql`
             UPDATE assignments
             SET title = COALESCE(${title}, title),
@@ -112,7 +112,7 @@ export async function updateAssignment(req, res) {
         console.error('Error updating assignment:', err);
         res.status(500).json({ message: 'Error updating assignment' });
     }
-} // updates an assignment -. needs id and any fields to update
+}
 
 export async function toggleAssignmentCompletion(req, res) {
     try {
@@ -138,7 +138,7 @@ export async function toggleAssignmentCompletion(req, res) {
         console.error('Error toggling assignment completion:', err);
         res.status(500).json({ message: 'Error toggling assignment completion' });
     }
-} // toggles assignment completion status
+}
 
 export async function getAssignmentsBySubject(req, res) {
     try {
@@ -159,4 +159,4 @@ export async function getAssignmentsBySubject(req, res) {
         console.error('Error fetching assignments by subject:', err);
         res.status(500).json({ message: 'Error fetching assignments by subject' });
     }
-} // gets assignments filtered by subject
+}
