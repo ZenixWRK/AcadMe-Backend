@@ -20,11 +20,9 @@ if (process.env.NODE_ENV) {
     job.start();
 }
 
-// -- Middleware -- //
 app.use(cors());
 app.use(express.json());
 app.use(ratelimit)
-// -- Middleware -- //
 
 
 initDB().then(() => {
@@ -36,7 +34,5 @@ initDB().then(() => {
         res.status(200).json({ message: 'API is healthy' });
     });
 
-    // -- Routes -- //
     app.use("/api/assignments", assignmentsRoute);
-    // -- Routes -- //
 });
