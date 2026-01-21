@@ -141,7 +141,7 @@ export async function suggestedFocus(req, res) {
         const { userId } = req.params;
         const { keywords } = req.body;
 
-        const response = await fetch(`https://acadme-backend.onrender.com/api/${userId}`);
+        const response = await fetch(`https://acadme-backend.onrender.com/api/assignments/${userId}`);
         const assignments = await response.json();
         const pendingAssignments = assignments.filter(a => !a.completed);
 
