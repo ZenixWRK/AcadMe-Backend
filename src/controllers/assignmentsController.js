@@ -16,7 +16,7 @@ export async function getAssignmentsByUserId(req, res) {
         console.error('Error fetching assignments:', err);
         res.status(500).json({ message: 'Error fetching assignments' });
     }
-} // gets all assignments for a user
+}
 
 export async function createAssignment(req, res) {
     try {
@@ -50,7 +50,7 @@ export async function createAssignment(req, res) {
             console.error('Error creating assignment:', err);
             res.status(500).json({ message: 'Error creating assignment' });
         }
-} // creates a new assignment
+}
 
 export async function deleteAssignment(req, res) {
     try {
@@ -72,7 +72,7 @@ export async function deleteAssignment(req, res) {
         console.error('Error deleting assignment:', err);
         res.status(500).json({ message: 'Error deleting assignment' });
     }
-} // deletes an assignment by id, if it can find it
+}
 
 export async function updateAssignment(req, res) {
     try {
@@ -108,7 +108,7 @@ export async function updateAssignment(req, res) {
         console.error('Error updating assignment:', err);
         res.status(500).json({ message: 'Error updating assignment' });
     }
-} // updates an assignment -. needs id and any fields to update
+}
 
 export async function toggleAssignmentCompletion(req, res) {
     try {
@@ -134,4 +134,65 @@ export async function toggleAssignmentCompletion(req, res) {
         console.error('Error toggling assignment completion:', err);
         res.status(500).json({ message: 'Error toggling assignment completion' });
     }
-} // toggles assignment completion status
+}
+
+const suggestedFocus = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { keywords } = req.body;
+
+        const assignments = await Assignment.find({
+            userId: userId,
+            completed: false
+        });
+
+        if (assignments.length === 0) {
+            return res.status(404).json({ message: 'No pending assignments found' });
+        }
+
+        const scoredAssignments = assignments.map(assignment => {
+            let score = 0;
+
+            const titleLower = assignment.title.toLowerCase();
+            const descLower = (assignment.description || '').toLowerCase();
+
+            keywords.forEach(keyword => {
+                const keywordLower = keyword.toLowerCase();
+                if (titleLower.includes(keywordLower)) score += 10;
+                if (descLower.includes(keywordLower)) score += 5;
+            });
+
+            if (assignment.priority === 'high') score += 15;
+            else if (assignment.priority === 'medium') score += 10;
+            else if (assignment.priority === 'low') score += 5;
+
+            const dueDate = new Date(assignment.dueDate);
+            const now = new Date();
+            const daysUntilDue = (dueDate - now) / (1000 * 60 * 60 * 24);
+
+            if (daysUntilDue < 1) score += 20;
+            else if (daysUntilDue < 3) score += 15;
+            else if (daysUntilDue < 7) score += 10;
+            else score += 5;
+
+            return {
+                assignment,
+                score
+            };
+        });
+
+        scoredAssignments.sort((a, b) => b.score - a.score);
+
+        const keyFocus = scoredAssignments[0].assignment;
+
+        res.json({
+            keyFocus,
+            score: scoredAssignments[0].score,
+            totalAssignments: assignments.length,
+        });
+
+    } catch (error) {
+        console.error('Error finding key focus:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+}
