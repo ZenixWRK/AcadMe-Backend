@@ -25,7 +25,4 @@ router.patch('/:id/toggle', toggleAssignmentCompletion);
 // Get all assignments for a user
 router.get('/:userId', getAssignmentsByUserId);
 
-// Get assignments by subject for a user
-router.get('/:userId/subject/:subject', getAssignmentsBySubject);
-
 export default router;

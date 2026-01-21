@@ -25,7 +25,6 @@ export async function createAssignment(req, res) {
             const title = incoming.title;
             const description = incoming.description;
             const dueDate = incoming.dueDate ?? incoming.duedate ?? incoming.due_date;
-            const subject = incoming.subject;
             const priority = incoming.priority ?? 'medium';
 
             const missing = [];
@@ -33,15 +32,14 @@ export async function createAssignment(req, res) {
             if (!title) missing.push('title');
             if (!description) missing.push('description');
             if (!dueDate) missing.push('dueDate');
-            if (!subject) missing.push('subject');
 
             if (missing.length > 0) {
                 return res.status(400).json({ message: `Missing required fields: ${missing.join(', ')}` });
             }
     
             const assignment = await sql`
-                INSERT INTO assignments (userid, title, description, duedate, subject, priority, completed)
-                VALUES (${userId}, ${title}, ${description}, ${dueDate}, ${subject}, ${priority}, ${false})   
+                INSERT INTO assignments (userid, title, description, duedate, priority, completed)
+                VALUES (${userId}, ${title}, ${description}, ${dueDate}, ${priority}, ${false})   
                 RETURNING *
                 `
             
@@ -83,7 +81,6 @@ export async function updateAssignment(req, res) {
         const title = incoming.title;
         const description = incoming.description;
         const dueDate = incoming.dueDate ?? incoming.duedate ?? incoming.due_date;
-        const subject = incoming.subject;
         const priority = incoming.priority;
         const completed = incoming.completed;
 
@@ -96,7 +93,6 @@ export async function updateAssignment(req, res) {
             SET title = COALESCE(${title}, title),
                 description = COALESCE(${description}, description),
                 duedate = COALESCE(${dueDate}, duedate),
-                subject = COALESCE(${subject}, subject),
                 priority = COALESCE(${priority}, priority),
                 completed = COALESCE(${completed}, completed)
             WHERE id = ${id}
@@ -139,24 +135,3 @@ export async function toggleAssignmentCompletion(req, res) {
         res.status(500).json({ message: 'Error toggling assignment completion' });
     }
 } // toggles assignment completion status
-
-export async function getAssignmentsBySubject(req, res) {
-    try {
-        const { userId, subject } = req.params;
-        
-        if (!userId || !subject) {
-            return res.status(400).json({ message: 'userId and subject are required' });
-        }
-
-        const assignments = await sql`
-            SELECT * FROM assignments 
-            WHERE userid = ${userId} AND subject = ${subject} 
-            ORDER BY duedate ASC
-        `;
-
-        res.status(200).json(assignments);
-    } catch (err) {
-        console.error('Error fetching assignments by subject:', err);
-        res.status(500).json({ message: 'Error fetching assignments by subject' });
-    }
-} // gets assignments filtered by subject

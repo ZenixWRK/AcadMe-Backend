@@ -14,7 +14,6 @@ export async function initDB() {
             title VARCHAR(255) NOT NULL,
             description TEXT,
             dueDate DATE NOT NULL,
-            subject VARCHAR(255) NOT NULL,
             priority VARCHAR(50) DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high')),
             completed BOOLEAN DEFAULT false,
             createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
