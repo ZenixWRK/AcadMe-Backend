@@ -141,16 +141,15 @@ export async function suggestedFocus(req, res) {
         const { userId } = req.params;
         const { keywords } = req.body;
 
-        const assignments = await Assignment.find({
-            userId: userId,
-            completed: false
-        });
+        const response = await fetch(`https://acadme-backend.onrender.com/api/${userId}`);
+        const assignments = await response.json();
+        const pendingAssignments = assignments.filter(a => !a.completed);
 
-        if (assignments.length === 0) {
+        if (pendingAssignments.length === 0) {
             return res.status(404).json({ message: 'No pending assignments found' });
         }
 
-        const scoredAssignments = assignments.map(assignment => {
+        const scoredAssignments = pendingAssignments.map(assignment => {
             let score = 0;
 
             const titleLower = assignment.title.toLowerCase();
@@ -188,7 +187,7 @@ export async function suggestedFocus(req, res) {
         res.json({
             keyFocus,
             score: scoredAssignments[0].score,
-            totalAssignments: assignments.length,
+            totalAssignments: pendingAssignments.length,
         });
 
     } catch (error) {
