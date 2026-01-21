@@ -4,8 +4,7 @@ import {
     createAssignment, 
     deleteAssignment, 
     updateAssignment, 
-    toggleAssignmentCompletion, 
-    getAssignmentsBySubject 
+    toggleAssignmentCompletion,
 } from '../controllers/assignmentsController.js';
 
 const router = express.Router();
