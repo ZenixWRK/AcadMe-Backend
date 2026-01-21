@@ -136,7 +136,7 @@ export async function toggleAssignmentCompletion(req, res) {
     }
 }
 
-const suggestedFocus = async (req, res) => {
+export async function suggestedFocus(req, res) {
     try {
         const { userId } = req.params;
         const { keywords } = req.body;
