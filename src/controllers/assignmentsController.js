@@ -44,7 +44,7 @@ export async function createAssignment(req, res) {
                 `
             
             console.log('Assignment created:', assignment[0]);
-            res.status(201).json(assignment[0]); // return the created assignment
+            res.status(201).json(assignment[0]); 
                 
         } catch (err) {
             console.error('Error creating assignment:', err);
@@ -87,7 +87,7 @@ export async function updateAssignment(req, res) {
         if (!id || isNaN(parseInt(id))) {
             return res.status(400).json({ message: 'Assignment id is required/needs to be a number' });
         }
-        // ? using this so i can commit and pus
+       
         const assignment = await sql`
             UPDATE assignments
             SET title = COALESCE(${title}, title),
